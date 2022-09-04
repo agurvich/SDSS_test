@@ -4,9 +4,15 @@ var viewerParams;
 function defineViewerParams(){
 	viewerParams = new function() {
 
+		this.url = new URL(window.location.href);
+
 		var currentTime = new Date();
 		// in seconds
 		this.initialize_time = currentTime.getTime()/1000;
+		//this.sleepTimeout = 1.5 // seconds
+		// no timeout
+		this.sleepTimeout = null // seconds
+		this.showSplashAtStartup = false;
 
 		this.container = null;
 		this.scene = null;
@@ -24,6 +30,10 @@ function defineViewerParams(){
 		this.partsMesh = {};
 
 		this.loaded = false;
+
+		// for disabling GUI elements
+		this.GUIExcludeList = []
+		this.collapseGUIAtStart = true;
 
 		//positions, will be rest below ()
 		this.center;
@@ -69,6 +79,18 @@ function defineViewerParams(){
 		//for rendering to image
 		this.renderWidth = 1920;
 		this.renderHeight = 1200;
+
+		// defaults for rendering to movie
+		this.VideoCapture_duration = 5; // seconds
+		this.VideoCapture_FPS = 30; // 30 frames per second
+		this.VideoCapture_filename = 'firefly_capture';
+		this.VideoCapture_format = 0; // index of format
+		this.VideoCapture_formats = ['.gif','.png','.jpg']//,'.webm'] // webm doesn't seem to be working :\
+		this.VideoCapture_frame = 0; // will store the frame so that we can shut off the capture when completed
+		// the  CCCapture object will be added when recordVideo is called
+		this.capturer = null; 
+		this.captureCanvas = false;
+		this.imageCaptureClicked = true; //to help differentiate between an image and movie for a gif
 
 		//for deciding whether to show velocity vectors
 		this.showVel = {};
@@ -173,10 +195,10 @@ function defineViewerParams(){
 		this.materialCD = null;
 		this.sceneCD = null;
 		this.cameraCD = null;
-		this.scaleCD = 0.1; //scaling factor for the shader so that it adds up to one at highest density
+		this.scaleCD = 0.01; //scaling factor for the shader so that it adds up to one at highest density
 
-		this.CDmin = 0;
-		this.CDmax = 1;
+		this.CDmin = 1;
+		this.CDmax = 10;
 		this.CDlognorm = 0;
 		this.CDckey = 'ColumnDensity' // the name of the ckey, shows up in the colorbar label
 		this.CDkey = '__column__density__foo__abg' // the name of the pseudo particle group, salted so that no one overwrites it
@@ -222,7 +244,9 @@ function defineViewerParams(){
 		this.haveOctree = {}; //will be initialized to false for each of the parts keys in loadData
 		this.haveAnyOctree = false; //must be a better way to do this!
 		this.FPS = 30; //will be upated in the octree render loop
+		this.FPS0 = 30; //save the previous to check if we need to update the GUI
 		this.memoryUsage = 0; //if using Chrome, we can track the memory usage and try to avoid crashes
+		this.memoryUsage0 = 0; //save the previous to check if we need to update the GUI
 		this.drawPass = 0;
 		this.totalParticlesInMemory = 0; //try to hold the total number of particles in memory
 		this.memoryLimit = 2*1e9; //bytes, maximum memory allowed -- for now this is more like a target
@@ -249,6 +273,8 @@ function defineViewerParams(){
 			this.boxSize = 0; //will be set based on the root node
 
 			this.loadingCount = {}; //will contain an array for each particle type that has the total inView and the total drawn to adjust the loading bar
+
+			this.showCoMParticles = false;
 
 
 			/*

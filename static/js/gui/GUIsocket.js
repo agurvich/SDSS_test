@@ -7,19 +7,28 @@
 function connectGUISocket(){
 	//$(document).ready(function() {
 	document.addEventListener("DOMContentLoaded", function(event) { 
-		// Event handler for new connections.
-		// The callback function is invoked when a connection with the
-		// server is established.
+
+		// this happens when the server connects.
+		// all other functions below here are executed when the server emits to that name.
 		socketParams.socket.on('connect', function() {
 			socketParams.socket.emit('connection_test', {data: 'GUI connected!'});
 		});
-		socketParams.socket.on('connection_response', function(msg) {
-			console.log('connection response', msg);
+		// socketParams.socket.on('connection_response', function(msg) {
+		// 	console.log('connection response', msg);
+		// });
+
+		// get the room from the server if the user specified on the command line.  Otherwise prompt the user here for a room.  Then join.
+		socketParams.socket.on('room_check', function(msg) {
+			console.log('!!!!!!!!! received message about rooms', msg)
+			if (!socketParams.room) socketParams.room = msg.room;
+			
+			// get the room name
+			while (!socketParams.room) socketParams.room = prompt("Please enter a session name.  This should be a unique string that you will use for all connections to this session.  Do not include any spaces.");
+			console.log('joining room', socketParams.room)
+			socketParams.socket.emit('join', {room: socketParams.room});
 		});
-		// Event handler for server sent data.
-		// The callback function is invoked whenever the server emits data
-		// to the client. The data is then displayed in the "Received"
-		// section of the page.
+
+
 		socketParams.socket.on('update_GUIParams', function(msg) {
 			//console.log('===have commands from viewer', msg)
 			setParams(msg); 
@@ -160,7 +169,7 @@ function createCube(){
 		new THREE.MeshBasicMaterial({color:"purple", side: THREE.DoubleSide}), 
 	]; 
 	// Create a MeshFaceMaterial, which allows the cube to have different materials on each face 
-	var cubeMaterial = new THREE.MeshFaceMaterial(cubeMaterials); 
+	var cubeMaterial = cubeMaterials;
 	GUIParams.cube = new THREE.Mesh(geometry, cubeMaterial);
 	setCubePosition(GUIParams.controls.target);
 
@@ -337,10 +346,11 @@ function updateOctreeLoadingBarUI(input){
 	if (selection.size() < 1) return
 	var width = parseFloat(selection.attr('width'));
 	if (input.denominator > 0){
-		var frac = THREE.Math.clamp(input.numerator/input.denominator, 0, 1);
+		var frac = THREE.Math.clamp(input.parts_numerator/input.parts_denominator, 0, 1);
 		//var frac = Math.max(viewerParams.octree.loadingCount[p][1]/viewerParams.octree.loadingCount[p][0], 0);
 		//console.log('loading',p, width,viewerParams.octree.loadingCount[p], frac)
 		d3.select('#' + input.p + 'octreeLoadingFill').transition().attr('width', (width*frac) + 'px');
 		d3.select('#' + input.p + 'octreeLoadingText').text(input.p + ' (' + input.numerator + '/' + input.denominator + ')');
+		//d3.select('#' + input.p + 'octreeLoadingText').text(input.p + ' (' + Math.round(frac*100) + '%)');
 	}
 }
