@@ -106,7 +106,7 @@ function createDecimationSegment(container,parent,name){
 			.attr('class','pLabelDiv')
 			.style('width','135px')
 			.style('display','inline-block')
-			.text('Memory Limit (Gb)');
+			.text('Memory Limit (GB)');
 		mem.append('div')
 			.attr('class','NSliderClass')
 			.attr('id','MSlider')
@@ -134,6 +134,7 @@ function createPresetSegment(container,parent,name){
 		.attr('id','savePresetButton')
 		.attr('class','button')
 		.style('width',(GUIParams.containerWidth - 10) + 'px')
+		.style('margin-left','0px') // TODO: padding is being double counted in main/general/data pane. RIP
 		.on('click',function(){
 			sendToViewer([{'savePreset':null}]);
 		})
@@ -149,6 +150,7 @@ function createResetSegment(container,parent,name){
 		.attr('id','resetButton')
 		.attr('class','button')
 		.style('width',(GUIParams.containerWidth - 10)/2. - 3 + 'px')
+		.style('margin-left','0px') // TODO: padding is being double counted in main/general/data pane. RIP
 		.on('click',function(){
 			sendToViewer([{'resetToOptions':null}]);
 		})
@@ -776,7 +778,7 @@ function createColumnDensityLogCheckBoxSegment(container,parent,name){
 
 	logContainer.append('input')
 		.attr('id','columnDensityLogCheckBoxElm')
-		.attr('value',false)
+		.attr('value',GUIParams.CDlognorm)
 		.attr('type','checkbox')
 		.attr('autocomplete','off')
 		.on('change',function(){
@@ -1060,7 +1062,7 @@ function createParticleVelocityCheckBoxSegment(container,parent,name,p){
 	// add velocity vector checkbox
 	dVcontent.append('input')
 		.attr('id',p+'velCheckBox')
-		.attr('value','false')
+		.attr('value',GUIParams.showVel[p])
 		.attr('type','checkbox')
 		.attr('autocomplete','off')
 		.on('change',function(){
@@ -1125,7 +1127,7 @@ function createParticleVelocityGradientCheckBoxSegment(container,parent,name,p){
 
 	dVGcontent.append('input')
 		.attr('id',p+'velGradientCheckBox')
-		.attr('value','false')
+		.attr('value',GUIParams.velGradient[p])
 		.attr('type','checkbox')
 		.attr('autocomplete','off')
 		.on('change',function(){
@@ -1146,7 +1148,7 @@ function createParticleVelocityAnimatorCheckBoxSegment(container,parent,name,p){
 
 	dAVcontent.append('input')
 		.attr('id',p+'velAnimateCheckBox')
-		.attr('value','false')
+		.attr('value',GUIParams.animateVel[p])
 		.attr('type','checkbox')
 		.attr('autocomplete','off')
 		.on('change',function(){
@@ -1217,7 +1219,7 @@ function createParticleColormapCheckBoxSegment(container,parent,name,p){
 
 	this_container.append('input')
 		.attr('id',p+'colorCheckBox')
-		.attr('value','false')
+		.attr('value',GUIParams.showColormap[p])
 		.attr('type','checkbox')
 		.attr('autocomplete','off')
 		.on('change',function(){
@@ -1240,6 +1242,7 @@ function createParticleColormapSelectorSegment(container,parent,name,p){
 		.attr('class','selectCMap')
 		.attr('id',p+'_SelectCMap')
 		.style('margin-left','4px')
+		.style('width','75px')
 		.on('change', selectColormap)
 
 	var options = selectCMap.selectAll('option')
@@ -1364,7 +1367,7 @@ function createParticleFilterSlidersSegment(container,parent,name,p){
 
 			invFilter.append('input')
 				.attr('id',p+'_FK_'+fk+'_END_InvertFilterCheckBox')
-				.attr('value','false')
+				.attr('value',GUIParams.invertFilter[p][fk])
 				.attr('type','checkbox')
 				.attr('autocomplete','off')
 				.on('change',function(){
@@ -1560,13 +1563,13 @@ function createOctreeLoadingBar(container){
 				.attr('y', (nRects*(height + offset) + margin) + 'px')
 				.attr('width','0px') //will be updated
 				.attr('height',height + 'px')
-				.attr('fill','rgb(' + (255*GUIParams.Pcolors[p][0]) + ',' + (255*GUIParams.Pcolors[p][1]) + ',' + (255*GUIParams.Pcolors[p][2]) + ')')
+				.attr('fill','rgb(' + (255*GUIParams.partsColors[p][0]) + ',' + (255*GUIParams.partsColors[p][1]) + ',' + (255*GUIParams.partsColors[p][2]) + ')')
 			svg.append('text')
 				.attr('id',p + 'octreeLoadingText')
 				.attr('class','octreeLoadingText')
 				.attr('x', (width + margin + offset) + 'px')
 				.attr('y', (nRects*(height + offset) + margin + 0.75*height) + 'px')
-				.attr('fill','rgb(' + (255*GUIParams.Pcolors[p][0]) + ',' + (255*GUIParams.Pcolors[p][1]) + ',' + (255*GUIParams.Pcolors[p][2]) + ')')
+				.attr('fill','rgb(' + (255*GUIParams.partsColors[p][0]) + ',' + (255*GUIParams.partsColors[p][1]) + ',' + (255*GUIParams.partsColors[p][2]) + ')')
 				.style('font-size', (0.75*height) + 'px')
 				.text(p + ' (0/0)')				
 			nRects += 1;

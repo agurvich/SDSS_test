@@ -13,7 +13,6 @@ function animate(time) {
 		if (viewerParams.captureCanvas) capture();
 
 		render();
-
 		// calculate framerate and optionally display it. 
 		// put the app to sleep if FPS < .66 by setting
 		// viewerParams.pauseAnimation = true
@@ -61,7 +60,7 @@ function animate(time) {
 				viewerParams.mem_profile[0],
 				viewerParams.mem_profile[1],
 				viewerParams.mem_profile[2],
-				viewerParams.PsizeMult[viewerParams.partsKeys[0]],
+				viewerParams.partsSizeMultipliers[viewerParams.partsKeys[0]],
 				profiled_FPS)
 
 			viewerParams.profiled = true;
@@ -321,7 +320,7 @@ function update_particle_mesh_UI_values(p,m){
 	m.geometry.setDrawRange( 0, viewerParams.plotNmax[p]*Nfac);
 
 	// apply particle size scale factor to meshes that aren't octree CoM meshes
-	if (!m.geometry.userData.octree) m.material.uniforms.uVertexScale.value = viewerParams.PsizeMult[p];
+	if (!m.geometry.userData.octree) m.material.uniforms.uVertexScale.value = viewerParams.partsSizeMultipliers[p];
 	else m.material.uniforms.uVertexScale.value = 1;
 
 	// apply colormap limits and flag for colormapping at all
@@ -333,11 +332,11 @@ function update_particle_mesh_UI_values(p,m){
 
 	// update the material only if it doesn't match
 	if (m.material.blending != viewerParams.blendingOpts[viewerParams.blendingMode[p]] ||
-		m.material.depthWrite !=  viewerParams.depthWrite[p] || 
+		m.material.depthWrite !=  viewerParams.depthTest[p] || 
 		m.material.depthTest !=  viewerParams.depthTest[p]){
 
 		m.material.blending = viewerParams.blendingOpts[viewerParams.blendingMode[p]];
-		m.material.depthWrite =  viewerParams.depthWrite[p];
+		m.material.depthWrite =  viewerParams.depthTest[p];
 		m.material.depthTest =  viewerParams.depthTest[p];
 		m.material.uniforms.useDepth.value = +viewerParams.depthTest[p];
 		m.material.needsUpdate = true;
@@ -346,10 +345,10 @@ function update_particle_mesh_UI_values(p,m){
 	// apply static color
 	//if (m.name.includes('Standard')){
 	m.material.uniforms.color.value = new THREE.Vector4(
-		viewerParams.Pcolors[p][0],
-		viewerParams.Pcolors[p][1],
-		viewerParams.Pcolors[p][2],
-		viewerParams.Pcolors[p][3]);
+		viewerParams.partsColors[p][0],
+		viewerParams.partsColors[p][1],
+		viewerParams.partsColors[p][2],
+		viewerParams.partsColors[p][3]);
 	//}
 }
 
@@ -562,7 +561,6 @@ function capture(){
 		viewerParams.VideoCapture_frame = 0;
 		viewerParams.imageCaptureClicked = false;
 	}
-
 }
 
 function update_memory_usage(){
